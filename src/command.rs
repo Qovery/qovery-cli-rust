@@ -5,14 +5,14 @@ use timeago::Formatter;
 use crate::{environment, project};
 use crate::application::VecApplication;
 use crate::conf::Conf;
-use crate::constant::{COL_APPLICATIONS, COL_BRANCH, COL_CREATED_AT, COL_DATABASES,
-                      COL_ENDPOINTS, COL_NAME, COL_REGION, COL_STATUS, OUT_NONE};
+use crate::constant::{COL_APPLICATIONS, COL_BRANCH, COL_CREATED_AT, COL_DATABASES, COL_ENDPOINTS, COL_NAME, COL_REGION, COL_STATUS, OUT_NONE, OUT_UNKNOWN};
 use crate::environment::Environments;
 use crate::error::Error::{AuthTokenExpired, Unknown};
 use crate::error::QResult;
 use crate::project::Projects;
 use crate::router::VecRouter;
-use crate::table::{get_table, wrap_or};
+use crate::service::VecService;
+use crate::table::{get_table, unwrap_or};
 
 pub fn list_projects() {
     let res = match project::list() {
@@ -62,23 +62,32 @@ pub fn list_environments(conf: &Conf) {
         COL_DATABASES
     ]);
 
-    res.results.iter().for_each(|x| {
-        let endpoints = VecRouter(&x.routers.as_ref().unwrap_or(&vec![]))
+    res.results.iter().for_each(|env| {
+        let endpoints = VecRouter(&env.routers.as_ref().unwrap_or(&vec![]))
             .connection_uris().join(", ");
 
-        let application_names = VecApplication(&x.applications.as_ref().unwrap_or(&vec![]))
-            .application_names().join(", ");
+        let application_names = VecApplication(&env.applications.as_ref().unwrap_or(&vec![]))
+            .application_names().iter()
+            .map(|x| x.clone().unwrap_or(OUT_UNKNOWN.to_string()))
+            .collect::<Vec<String>>()
+            .join(", ");
 
-        let region = format!("{} ({})", x.cloud_provider_region.full_name,
-                             x.cloud_provider_region.description);
+        let database_names = VecService(&env.databases.as_ref().unwrap_or(&vec![]))
+            .database_names().iter()
+            .map(|x| x.clone().unwrap_or(OUT_UNKNOWN.to_string()))
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        let region = format!("{} ({})", env.cloud_provider_region.full_name,
+                             env.cloud_provider_region.description);
 
         table.add_row(row![
             conf.branch_name.as_ref().unwrap(),
-            x.status.code_message,
-            wrap_or(endpoints, OUT_NONE),
-            wrap_or(region, OUT_NONE),
-            wrap_or(application_names, OUT_NONE),
-            wrap_or("".to_string(), OUT_NONE),
+            env.status.code_message_colored(),
+            unwrap_or(endpoints, OUT_NONE),
+            unwrap_or(region, OUT_NONE),
+            unwrap_or(application_names, OUT_NONE),
+            unwrap_or(database_names, OUT_NONE),
         ]);
     });
 

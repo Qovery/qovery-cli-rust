@@ -18,3 +18,4 @@ pub const COL_APPLICATIONS: &str = "APPLICATIONS";
 pub const COL_DATABASES: &str = "DATABASES";
 
 pub const OUT_NONE: &str = "none";
+pub const OUT_UNKNOWN: &str = "unknown";

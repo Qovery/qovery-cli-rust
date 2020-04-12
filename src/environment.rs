@@ -9,7 +9,7 @@ use crate::error::{Error, QResult};
 use crate::error::Error::{AuthTokenExpired, AuthTokenNotFound};
 use crate::local_file::get_authorization_token;
 use crate::router::Router;
-use crate::service::Database;
+use crate::service::{Database, Service};
 use crate::status::Status;
 
 pub type Environments = WrapperResponse<Environment>;

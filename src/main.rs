@@ -1,9 +1,12 @@
 extern crate chrono;
+extern crate colored;
 #[macro_use]
 extern crate prettytable;
 extern crate serde_json;
+// not needed in Rust 2018
 
 use clap::{App, AppSettings, Arg, ArgMatches, crate_authors, crate_version, SubCommand};
+use colored::*;
 
 use constant::{APPLICATION, DELETE, ENV, ENVIRONMENT, LIST, LOG, PROJECT, START, STATUS};
 
