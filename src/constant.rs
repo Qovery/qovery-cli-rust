@@ -16,3 +16,5 @@ pub const COL_ENDPOINTS: &str = "ENDPOINTS";
 pub const COL_REGION: &str = "REGION";
 pub const COL_APPLICATIONS: &str = "APPLICATIONS";
 pub const COL_DATABASES: &str = "DATABASES";
+
+pub const OUT_NONE: &str = "none";

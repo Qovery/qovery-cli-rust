@@ -13,18 +13,14 @@ fn create_dir(path: &str) {
 }
 
 fn get_qovery_directory_path() -> String {
-    match dirs::home_dir() {
-        Some(home) => {
-            let uri = home.to_str().unwrap();
-            let dir_path = PathBuf::from_slash(format!("{}/.qovery", uri))
-                .to_str().unwrap().to_string();
+    let home = dirs::home_dir().unwrap_or(PathBuf::from("/tmp")); // TODO change
+    let uri = home.to_str().unwrap();
+    let dir_path = PathBuf::from_slash(format!("{}/.qovery", uri))
+        .to_str().unwrap().to_string();
 
-            create_dir(&dir_path);
+    create_dir(&dir_path);
 
-            dir_path
-        }
-        _ => panic!("can't locate home directory") // TODO change
-    }
+    dir_path
 }
 
 pub fn get_authorization_token() -> QResult<String> {

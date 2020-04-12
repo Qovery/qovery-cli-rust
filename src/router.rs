@@ -4,3 +4,13 @@ use serde::{Deserialize, Serialize};
 pub struct Router {
     pub connection_uri: String,
 }
+
+pub struct VecRouter<'a>(pub &'a Vec<Router>);
+
+impl VecRouter<'_> {
+    pub fn connection_uris(&self) -> Vec<String> {
+        self.0.iter()
+            .map(|x| x.connection_uri.to_string())
+            .collect::<Vec<String>>()
+    }
+}

@@ -23,6 +23,8 @@ mod environment;
 mod status;
 mod cloud_provider;
 mod router;
+mod service;
+mod repository;
 
 fn get_app_settings() -> &'static [AppSettings] {
     &[

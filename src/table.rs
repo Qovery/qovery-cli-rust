@@ -13,3 +13,11 @@ pub fn get_table() -> Table {
     table.set_format(tf);
     table
 }
+
+pub fn wrap_or(text: String, default: &str) -> String {
+    if text.trim().is_empty() {
+        return default.to_string();
+    }
+
+    text
+}
