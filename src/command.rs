@@ -2,10 +2,10 @@ use chrono::Utc;
 use prettytable::Table;
 use timeago::Formatter;
 
-use crate::{environment, project};
+use crate::{application, environment, project};
 use crate::application::VecApplication;
 use crate::conf::Conf;
-use crate::constant::{COL_APPLICATIONS, COL_BRANCH, COL_CREATED_AT, COL_DATABASES, COL_ENDPOINTS, COL_NAME, COL_REGION, COL_STATUS, OUT_NONE, OUT_UNKNOWN};
+use crate::constant::{COL_APPLICATION_NAME, COL_APPLICATIONS, COL_BRANCH, COL_CREATED_AT, COL_DATABASES, COL_ENDPOINT, COL_ENDPOINTS, COL_NAME, COL_REGION, COL_STATUS, OUT_NONE, OUT_UNKNOWN};
 use crate::environment::Environments;
 use crate::error::Error::{AuthTokenExpired, Unknown};
 use crate::error::QResult;
@@ -87,6 +87,44 @@ pub fn list_environments(conf: &Conf) {
             unwrap_or(endpoints, OUT_NONE),
             unwrap_or(region, OUT_NONE),
             unwrap_or(application_names, OUT_NONE),
+            unwrap_or(database_names, OUT_NONE),
+        ]);
+    });
+
+    table.printstd();
+}
+
+pub fn list_applications(conf: &Conf) {
+    let res = match application::list(conf.project_id.as_ref().unwrap(),
+                                      conf.environment_id.as_ref().unwrap()) {
+        Ok(applications) => applications,
+        Err(Unknown(err)) => {
+            println!("{}", err);
+            unimplemented!()
+        }
+        Err(_) => unimplemented!()
+    };
+
+    let mut table = get_table();
+
+    table.set_titles(row![
+        COL_APPLICATION_NAME,
+        COL_STATUS,
+        COL_ENDPOINT,
+        COL_DATABASES
+    ]);
+
+    res.results.iter().for_each(|app| {
+        let database_names = VecService(&app.databases.as_ref().unwrap_or(&vec![]))
+            .database_names().iter()
+            .map(|x| x.clone().unwrap_or(OUT_UNKNOWN.to_string()))
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        table.add_row(row![
+            app.name.clone().unwrap_or(OUT_UNKNOWN.to_string()),
+            app.status.as_ref().unwrap().code_message_colored(),
+            app.connection_uri.clone().unwrap_or(OUT_NONE.to_string()),
             unwrap_or(database_names, OUT_NONE),
         ]);
     });

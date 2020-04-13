@@ -11,6 +11,7 @@ use colored::*;
 use constant::{APPLICATION, DELETE, ENV, ENVIRONMENT, LIST, LOG, PROJECT, START, STATUS};
 
 use crate::conf::Conf;
+use crate::constant::BRANCH;
 
 mod constant;
 mod application;
@@ -44,11 +45,11 @@ fn get_project_argument<'a, 'b>() -> Arg<'a, 'b> {
         .required(false)
 }
 
-fn get_environment_argument<'a, 'b>() -> Arg<'a, 'b> {
-    Arg::with_name(ENVIRONMENT)
-        .short("e")
+fn get_branch_argument<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name(BRANCH)
+        .short("b")
         .takes_value(true)
-        .help("Your environment name")
+        .help("Your branch (or environment) name")
         .required(false)
 }
 
@@ -110,7 +111,8 @@ fn main() {
                 .settings(get_app_settings())
                 .subcommands(vec![
                     SubCommand::with_name(LIST)
-                        .about("List all applications"),
+                        .about("List all applications")
+                        .args(&[get_project_argument(), get_branch_argument()]),
                     SubCommand::with_name(LOG)
                         .about("Show application logs"),
                     SubCommand::with_name(ENV)
@@ -124,19 +126,19 @@ fn main() {
 
     let conf = get_conf(&args);
 
-    if let Some(m) = args.subcommand_matches("project") {
+    if let Some(m) = args.subcommand_matches(PROJECT) {
         match m.subcommand_name() {
             Some(LIST) => command::list_projects(),
             _ => ()
         }
-    } else if let Some(m) = args.subcommand_matches("environment") {
+    } else if let Some(m) = args.subcommand_matches(ENVIRONMENT) {
         match m.subcommand_name() {
             Some(LIST) => command::list_environments(&conf),
             _ => ()
         }
-    } else if let Some(m) = args.subcommand_matches("application") {
+    } else if let Some(m) = args.subcommand_matches(APPLICATION) {
         match m.subcommand_name() {
-            Some(LIST) => application::list(),
+            Some(LIST) => command::list_applications(&conf),
             Some(LOG) => print!("show logs from application"),
             _ => ()
         }
