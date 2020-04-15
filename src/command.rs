@@ -82,7 +82,7 @@ pub fn list_environments(conf: &Conf) {
                              env.cloud_provider_region.description);
 
         table.add_row(row![
-            conf.branch_name.as_ref().unwrap(),
+            env.name.clone(),
             env.status.code_message_colored(),
             unwrap_or(endpoints, OUT_NONE),
             unwrap_or(region, OUT_NONE),
