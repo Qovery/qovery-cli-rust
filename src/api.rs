@@ -5,7 +5,7 @@ use serde::de::DeserializeOwned;
 
 use crate::error::Error::{AuthTokenExpired, Unknown};
 use crate::error::QResult;
-use crate::local_file::get_authorization_token;
+use crate::local_file::authorization_token;
 
 const API_ROOT_URL: &str = "https://api.qovery.com/api/v1";
 const JSON_CONTENT_TYPE: &str = "application/json";
@@ -22,7 +22,7 @@ impl<T> WrapperResponse<T> {
 }
 
 fn get_headers() -> QResult<HeaderMap> {
-    let auth_token = get_authorization_token()?;
+    let auth_token = authorization_token()?;
     let bearer_auth_token = format!("Bearer {}", auth_token);
 
     let mut headers = HeaderMap::new();

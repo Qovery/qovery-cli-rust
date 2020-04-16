@@ -5,7 +5,7 @@ use crate::api;
 use crate::api::WrapperResponse;
 use crate::error::{Error, QResult};
 use crate::error::Error::{AuthTokenExpired, AuthTokenNotFound};
-use crate::local_file::get_authorization_token;
+use crate::local_file::authorization_token;
 
 pub type Projects = WrapperResponse<Project>;
 

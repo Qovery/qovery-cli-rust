@@ -5,13 +5,15 @@ extern crate prettytable;
 extern crate serde_json;
 // not needed in Rust 2018
 
+use std::ops::Sub;
+
 use clap::{App, AppSettings, Arg, ArgMatches, crate_authors, crate_version, SubCommand};
 use colored::*;
 
 use constant::{APPLICATION, DELETE, ENV, ENVIRONMENT, LIST, LOG, PROJECT, START, STATUS};
 
 use crate::conf::Conf;
-use crate::constant::BRANCH;
+use crate::constant::{BRANCH, INIT, AUTH};
 
 mod constant;
 mod application;
@@ -29,6 +31,7 @@ mod cloud_provider;
 mod router;
 mod service;
 mod repository;
+mod util;
 
 fn get_app_settings() -> &'static [AppSettings] {
     &[
@@ -79,6 +82,10 @@ fn main() {
         your Qovery environment seamlessly.")
         .settings(get_app_settings())
         .subcommands(vec![
+            SubCommand::with_name(AUTH)
+                .about("Do authentication"),
+            SubCommand::with_name(INIT)
+                .about("Wizard to generate the .qovery.yml"),
             SubCommand::with_name(PROJECT)
                 .about("Perform project actions")
                 .settings(get_app_settings())
@@ -123,10 +130,13 @@ fn main() {
         ]);
 
     let args = app.get_matches();
-
     let conf = get_conf(&args);
 
-    if let Some(m) = args.subcommand_matches(PROJECT) {
+    if let Some(m) = args.subcommand_matches(AUTH) {
+        command::auth(&conf)
+    } else if let Some(m) = args.subcommand_matches(INIT) {
+        command::init(&conf)
+    } else if let Some(m) = args.subcommand_matches(PROJECT) {
         match m.subcommand_name() {
             Some(LIST) => command::list_projects(),
             _ => ()

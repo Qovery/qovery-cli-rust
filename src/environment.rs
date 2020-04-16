@@ -7,7 +7,7 @@ use crate::application::Application;
 use crate::cloud_provider::CloudProviderRegion;
 use crate::error::{Error, QResult};
 use crate::error::Error::{AuthTokenExpired, AuthTokenNotFound};
-use crate::local_file::get_authorization_token;
+use crate::local_file::authorization_token;
 use crate::router::Router;
 use crate::service::{Database, Service};
 use crate::status::Status;

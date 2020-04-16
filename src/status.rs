@@ -13,13 +13,13 @@ pub struct Status {
 impl Status {
     pub fn code_message_colored(&self) -> ColoredString {
         if self.code_message.ends_with("_ERROR") {
-            return self.code_message.as_str().red();
+            return self.code_message.as_str().bold().red();
         }
 
         if self.progression_in_percent != 100 {
-            return self.code_message.as_str().yellow();
+            return self.code_message.as_str().bold().yellow();
         }
 
-        self.code_message.as_str().green()
+        self.code_message.as_str().bold().green()
     }
 }
