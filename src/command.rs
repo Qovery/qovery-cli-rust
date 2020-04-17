@@ -219,7 +219,7 @@ pub fn init(conf: &Conf) {
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Choose the project you want")
             .default(0)
-            .items(&["Use existing project", "New project"])
+            .items(&["Use a template", "Use existing project", "New project"])
             .interact()
             .unwrap()
     } else {
@@ -231,17 +231,30 @@ pub fn init(conf: &Conf) {
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    let project_name = if is_new_project == 0 {
-        let project_name_idx = Select::with_theme(&select_theme)
-            .with_prompt("Choose the project you want")
-            .default(0)
-            .items(project_names.as_slice())
-            .interact()
-            .unwrap();
+    let project_name = match is_new_project {
+        0 => {
+            let template_names = ["node", "java", "python", "hasura"];
 
-        project_names[project_name_idx].clone()
-    } else {
-        loop {
+            let template_name_idx = Select::with_theme(&select_theme)
+                .with_prompt("Choose the template you want")
+                .default(0)
+                .items(&template_names)
+                .interact()
+                .unwrap();
+
+            template_names[template_name_idx].to_string().clone()
+        }
+        1 => {
+            let project_name_idx = Select::with_theme(&select_theme)
+                .with_prompt("Choose the project you want")
+                .default(0)
+                .items(project_names.as_slice())
+                .interact()
+                .unwrap();
+
+            project_names[project_name_idx].clone()
+        }
+        2 => loop {
             let project_name = Input::with_theme(&prompt_char_theme)
                 .with_prompt("Project name")
                 .interact()
@@ -254,6 +267,7 @@ pub fn init(conf: &Conf) {
             term.write_line(format!("{} {}", project_name.as_str().bold().yellow(),
                                     "exists already").as_str());
         }
+        _ => "unknown".to_string()
     };
 
     let application_name = current_directory_name();

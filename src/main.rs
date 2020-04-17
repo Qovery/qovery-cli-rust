@@ -132,6 +132,27 @@ fn main() {
     let args = app.get_matches();
     let conf = get_conf(&args);
 
+    /*
+    TODO
+    - qovery run
+    - qovery auth
+    - qovery log
+    - qovery status
+    - qovery deploy list
+    - qovery deploy <commit id>
+    - qovery redeploy
+    - qovery project env list
+    - qovery project env add <key> <value>
+    - qovery project env delete <key> <value>
+    - qovery environment env list
+    - qovery environment env add <key> <value>
+    - qovery environment env delete <key> <value>
+    - qovery application env list
+    - qovery application env add <key> <value>
+    - qovery application env delete <key> <value>
+    - qovery upgrade
+    - qovery version
+    */
     if let Some(m) = args.subcommand_matches(AUTH) {
         command::auth(&conf)
     } else if let Some(m) = args.subcommand_matches(INIT) {
