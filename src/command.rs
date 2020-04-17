@@ -214,12 +214,43 @@ pub fn init(conf: &Conf) {
     term.write_line("Reply to the following questions to initialize Qovery for this application");
     term.write_line(format!("For more info: {}", "https://docs.qovery.com\n".bold()).as_str());
 
+    // ask for using a template
+    term.write_line(format!("{} {}", "Recommended".bold(),
+                            "if you don't have existing Dockerfile").as_str());
+
+    let ask_for_a_template = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt("Do you want to use a Dockerfile template? (NodeJS, Java, PHP, Python...)")
+        .default(0)
+        .items(&["Yes", "No"])
+        .interact()
+        .unwrap();
+
+    let dockerfile_template_name = if ask_for_a_template == 0 {
+        let template_names = ["node", "java", "python", "hasura"];
+
+        let template_name_idx = Select::with_theme(&select_theme)
+            .with_prompt("Choose the template you want")
+            .default(0)
+            .items(&template_names)
+            .interact()
+            .unwrap();
+
+        Some(template_names[template_name_idx].to_string().clone())
+    } else {
+        None
+    };
+
+    // TODO check if there is a Dockerfile
+
     let is_new_project = if projects.results.len() > 1 {
         // create new project or use existing one?
         Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Choose the project you want")
             .default(0)
-            .items(&["Use a template", "Use existing project", "New project"])
+            .items(&[
+                "Add this application to an existing project",
+                "Add this application to a new project"
+            ])
             .interact()
             .unwrap()
     } else {
@@ -231,30 +262,17 @@ pub fn init(conf: &Conf) {
         .map(|x| x.name)
         .collect::<Vec<String>>();
 
-    let project_name = match is_new_project {
-        0 => {
-            let template_names = ["node", "java", "python", "hasura"];
+    let project_name = if is_new_project == 0 {
+        let project_name_idx = Select::with_theme(&select_theme)
+            .with_prompt("Choose the project you want")
+            .default(0)
+            .items(project_names.as_slice())
+            .interact()
+            .unwrap();
 
-            let template_name_idx = Select::with_theme(&select_theme)
-                .with_prompt("Choose the template you want")
-                .default(0)
-                .items(&template_names)
-                .interact()
-                .unwrap();
-
-            template_names[template_name_idx].to_string().clone()
-        }
-        1 => {
-            let project_name_idx = Select::with_theme(&select_theme)
-                .with_prompt("Choose the project you want")
-                .default(0)
-                .items(project_names.as_slice())
-                .interact()
-                .unwrap();
-
-            project_names[project_name_idx].clone()
-        }
-        2 => loop {
+        project_names[project_name_idx].clone()
+    } else {
+        loop {
             let project_name = Input::with_theme(&prompt_char_theme)
                 .with_prompt("Project name")
                 .interact()
@@ -267,7 +285,6 @@ pub fn init(conf: &Conf) {
             term.write_line(format!("{} {}", project_name.as_str().bold().yellow(),
                                     "exists already").as_str());
         }
-        _ => "unknown".to_string()
     };
 
     let application_name = current_directory_name();
